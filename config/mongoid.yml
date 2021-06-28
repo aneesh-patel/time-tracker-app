@@ -1,0 +1,16 @@
+development:
+  clients:
+    default:
+      uri: mongodb+srv://aneeshPatel:Monisha0u!@cluster0.hbwxg.mongodb.net/TimeTrackingData?retryWrites=true&w=majority
+      options:
+        server_selection_timeout: 5
+test:
+  clients:
+    default:
+      database: time_tracking_app_test
+      hosts:
+        - localhost:27017
+      options:
+        read:
+          mode: :primary
+        max_pool_size: 1

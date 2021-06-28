@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  duration_seconds: 1
+  started_at: 2021-06-28 18:54:26
+  task: one
+
+two:
+  duration_seconds: 1
+  started_at: 2021-06-28 18:54:26
+  task: two

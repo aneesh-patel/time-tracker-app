@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  original_id: MyText
+  name: MyText
+  due_date: 2021-06-28 18:53:06
+  start_date: 2021-06-28 18:53:06
+  workspace: one
+
+two:
+  original_id: MyText
+  name: MyText
+  due_date: 2021-06-28 18:53:06
+  start_date: 2021-06-28 18:53:06
+  workspace: two
