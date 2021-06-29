@@ -1,27 +1,18 @@
-class UsersController < ApplicationController
-  before_action :dump_all_data_harvest, only: [:index]
-  
+class UpdateHarvestJob < ApplicationJob
+  queue_as :default
 
-
-  def test
+  def perform(*args)
+    # Do something later
+    dump_all_data_harvest()
     projects = FetchData.where(user_id: '1', resource: 'project', source: 'harvest').to_a
     tasks = FetchData.where(user_id: '1', resource: 'task', source: 'harvest').to_a
     time_entries = FetchData.where(user_id: '1', resource: 'time_entry', source: 'harvest').to_a
     normalize_projects_harvest(projects)
     normalize_tasks_harvest(tasks)
     normalize_time_entries_harvest(time_entries)
-  end 
-
-
-
-  def index
   end
 
-
-
   private
-
-  
 
   # Creates Harvest generic workspace 
   def create_harvest_workspace
@@ -94,11 +85,6 @@ class UsersController < ApplicationController
       end
     end
   end
-
-
-
-
-
 
   # Pulls out time_entry data from Harvest API
   def pull_time_entries_harvest(user_id)

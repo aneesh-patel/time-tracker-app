@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  get 'sources/index'
+  get 'sources/create'
+  get 'sources/show'
+  get 'sources/delete'
+  get 'sources/update'
   get  'users/index'
   get      '/test',    to: 'users#test'
   # post   '/users'
