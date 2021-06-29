@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  post 'authenticate',  to: 'authentication#create'
   get 'sources/index'
   get 'sources/create'
   get 'sources/show'
