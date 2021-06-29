@@ -1,11 +1,103 @@
 class UsersController < ApplicationController
   before_action :dump_all_data_harvest, only: [:index]
+  
+
+
+  def test
+    projects = FetchData.where(user_id: '1', resource: 'project', source: 'harvest').to_a
+    tasks = FetchData.where(user_id: '1', resource: 'task', source: 'harvest').to_a
+    time_entries = FetchData.where(user_id: '1', resource: 'time_entry', source: 'harvest').to_a
+    normalize_projects_harvest(projects)
+    normalize_tasks_harvest(tasks)
+    normalize_time_entries_harvest(time_entries)
+  end 
+
+
 
   def index
   end
 
 
   private
+
+  
+
+  # Creates Harvest generic workspace 
+  def create_harvest_workspace
+    Workspace.create!(original_id: 1, source_name: 'harvest', source: Source.find_by(user_id: 1))
+  end
+
+  # Gets harvest workspace
+  def harvest_workspace
+    Workspace.find_by(source_id: Source.find_by(user_id: 1))
+  end
+
+  # Puts mongodb data into projects table from Harvest
+  def normalize_projects_harvest(projects)
+
+    projects.each do |project|
+      
+      found_project = Project.find_by(workspace_id: 1, original_id: project["resource_original_id"])
+      if found_project
+        found_project.due_date = project["payload"]["ends_on"]
+        found_project.start_date = project["payload"]["starts_on"]
+        found_project.workspace_id = harvest_workspace.id
+        found_project.name = project["payload"]["name"]
+      else
+        found_project = Project.create!(
+          workspace_id: 1,
+          original_id: project["resource_original_id"],
+          name: project["payload"]["name"],
+          due_date: project["payload"]["ends_on"],
+          start_date: project["payload"]["starts_on"],
+          workspace_id: harvest_workspace.id
+        )
+      end
+    end
+  end
+
+  # Puts mongodb data into tasks table from Harvest
+  def normalize_tasks_harvest(tasks)
+    tasks.each do |task|
+      project_original_id = task["payload"]["project"]["id"]
+      project = Project.find_by(workspace_id: 1, original_id: project_original_id)
+      found_task = Task.find_by(project_id: project.id, original_id: task["payload"]["task"]["id"])
+      if found_task
+        found_task.name = task["payload"]["task"]["name"]
+      else
+        found_task = Task.create!(project_id: project.id, name: task["payload"]["task"]["name"], original_id: task["payload"]["task"]["id"])
+      end
+    end
+  end
+
+
+  # Puts mongodb data into time_entries table from Harvest
+
+  def normalize_time_entries_harvest(time_entries)
+    time_entries.each do |time_entry|
+      project_original_id = time_entry["payload"]["project"]["id"]
+      task_original_id = time_entry["payload"]["task"]["id"]
+      project = Project.find_by(original_id: project_original_id, workspace_id: 1)
+      task = Task.find_by(original_id: task_original_id, project_id: project.id)
+    
+      original_id = time_entry["payload"]["id"]
+      
+      found_time_entry = TimeEntry.find_by(task_id: task.id, original_id: original_id)
+      duration_seconds = (time_entry["payload"]["hours"] * 60 * 60).to_i
+      started_at = time_entry["payload"]["spent_date"].to_datetime
+      if found_time_entry
+        found_time_entry.duration_seconds = duration_seconds
+        found_time_entry.started_at = started_at
+      else
+        found_time_entry = TimeEntry.create!(task_id: task.id, started_at: started_at, duration_seconds: duration_seconds, original_id: original_id)
+      end
+    end
+  end
+
+
+
+
+
 
   # Pulls out time_entry data from Harvest API
   def pull_time_entries_harvest(user_id)
@@ -103,8 +195,8 @@ class UsersController < ApplicationController
   end
 
   def dump_all_data_harvest
-    dump_projects_harvest()
-    dump_tasks_harvest()
+    # dump_projects_harvest()
+    # dump_tasks_harvest()
     dump_time_entries_harvest()
   end
 end
