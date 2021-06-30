@@ -108,7 +108,7 @@ end
 # Puts time_entry info in FetchData - MongoDB Database
 def dump_data(payload)
   # user_id is provisional and reflects our user's internal id
-  FetchData.create!(user_id: '1', payload: payload, source: 'toggl')
+  FetchData.create!(user_id: '1', payload: payload, source: 'clockify')
 end
 ​
 def consolidate_payloads_clockify(user_payload, workspaces_payload, projects_payload, tasks_payload, time_entries_payload)
@@ -122,4 +122,22 @@ def consolidate_payloads_clockify(user_payload, workspaces_payload, projects_pay
   }
 ​
   payloads
+end
+
+def orchestrate_request_data_clockify(api_key)
+  # Extract all payloads and return a hash with all of them
+  user_payload = request_simple_clockify(api_key, 'user')
+  user_id = user_payload["id"]
+​
+  workspaces_payload = request_simple_clockify(api_key, 'workspaces')
+  workspace_ids = extract_ids(workspaces_payload)
+​
+  projects_payload = request_projects_clockify(api_key, workspace_ids)
+  project_ids = extract_project_ids(projects_payload)
+​
+  tasks_payload = request_tasks_clockify(api_key, project_ids)
+​
+  time_entries_payload = request_time_entries_clockify(api_key, workspace_ids, user_id)
+​
+  consolidate_payloads_clockify(user_payload, workspaces_payload, projects_payload, tasks_payload, time_entries_payload)
 end

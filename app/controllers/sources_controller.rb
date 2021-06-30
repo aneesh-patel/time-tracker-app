@@ -1,14 +1,17 @@
 class SourcesController < ApplicationController
-  before_action :authenticate_user, only: [:create, :show, :delete, :update]
+  before_action :authenticate_user, only: [:index, :create, :show, :delete, :update]
   def index
+    representer = SourcesRepresenter.new(all_sources)
+    render json: representer.as_json
+  end
+
+  def test
     UpdateHarvestJob.perform_later()
     render json: {message: "Job performed successfully"}, status: :ok
   end
 
   def create
-  
     new_source = Source.new(source_params)
-    
     new_source.user_id = current_user.id
 
     if new_source.save
@@ -19,12 +22,32 @@ class SourcesController < ApplicationController
   end
 
   def show
+    source = Source.find_by(id: params[:source_id])
+    if source
+      render json: { id: source.id, name: source.name, access_token: source.access_token, account_id: source.account_id }, status: :found
+    else
+      render json: {error: "could not find source with source id of #{params[:source_id]}"}, status: :not_found
+    end
   end
 
   def delete
+    
   end
 
   def update
+    source = Source.find_by(id: params[:source_id])
+    if source
+      source.name = source_params[:name]
+      source.access_token = source_params[:access_token]
+      source.account_id = source_params[:account_id]
+      if source.save
+        render json: { id: source.id, name: source.name, access_token: source.access_token, account_id: source.account_id }, status: :found
+      else
+        render json: source.errors, status: :unprocessable_entity
+      end
+    else
+      render json: {error: "could not find source with source id of #{params[:source_id]}"}, status: :not_found
+    end
   end
 
   private

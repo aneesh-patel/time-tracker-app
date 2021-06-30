@@ -22,7 +22,7 @@ class ApplicationController < ActionController::API
 
   # Gets all Sources for current user
   def all_sources
-    sources = current_user.sources
+    sources = current_user.sources || []
   end
 
   def all_workspaces
@@ -38,7 +38,7 @@ class ApplicationController < ActionController::API
 
   # Gets all projects for current user
   def all_projects
-    projects = [];
+    projects = []
     all_workspaces.each do |workspace|
       workspace_projects = workspace.projects
       workspace_projects.each do |project|
@@ -48,7 +48,28 @@ class ApplicationController < ActionController::API
     return projects
   end
 
+  # Get all tasks for current user
+  def all_tasks
+    tasks = []
+    all_projects.each do |project|
+      project_tasks = project.tasks
+      project_tasks.each do |task|
+        tasks.push(task)
+      end
+    end
+    return tasks
+  end
 
+  def all_time_entries
+    time_entries = []
+    all_tasks.each do |task|
+      task_time_entries = task.time_entries
+      task_time_entries.each do |time_entry|
+        time_entries.push(time_entry)
+      end
+    end
+    return time_entries
+  end
 
 
 end
