@@ -23,3 +23,5 @@ class AuthenticationController < ApplicationController
   end
 
 end
+
+# /localhost:3000/authenticate
