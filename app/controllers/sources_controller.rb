@@ -1,5 +1,5 @@
 class SourcesController < ApplicationController
-  before_action :authenticate_user, only: [:index, :create, :show, :delete, :update]
+  before_action :authenticate_user, only: [:index, :create, :show, :destroy, :update]
   def index
     representer = SourcesRepresenter.new(all_sources)
     render json: representer.as_json
@@ -23,20 +23,26 @@ class SourcesController < ApplicationController
 
   def show
     source = Source.find_by(id: params[:source_id])
-    if source
+    if source && all_sources.include?(source)
       render json: { id: source.id, name: source.name, access_token: source.access_token, account_id: source.account_id }, status: :found
     else
-      render json: {error: "could not find source with source id of #{params[:source_id]}"}, status: :not_found
+      render json: {error: "Could not find source with id of #{params[:source_id]}"}, status: :not_found
     end
   end
 
-  def delete
-    
+  def destroy
+    source = Source.find_by(id: params[:source_id])
+    if source && all_sources.include?(source)
+      source.destroy!
+      head :no_content
+    else
+      render json: {error: "Could not find source with id of #{params[:source_id]}"}, status: :not_found
+    end
   end
 
   def update
     source = Source.find_by(id: params[:source_id])
-    if source
+    if source && all_sources.include?(source)
       source.name = source_params[:name]
       source.access_token = source_params[:access_token]
       source.account_id = source_params[:account_id]
