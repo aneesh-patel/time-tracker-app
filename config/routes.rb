@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   get 'sources/update'
   get  'users/index'
   get      '/test',    to: 'users#test'
-  # post   '/users'
+  post 'users',        to: 'users#create'
   # get    '/users/me'
   # post   '/users/me'
   # get    '/projects'
