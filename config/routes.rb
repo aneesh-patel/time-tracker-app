@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
   get 'projects', to: 'projects#index'
-  get 'projects/show'
+  get 'projects/:project_id', to: 'projects#show'
   post 'authenticate',  to: 'authentication#create'
+  post 'sources', to: 'sources#create'
   get 'sources/index'
   get 'sources/create'
   get 'sources/show'

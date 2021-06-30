@@ -7,10 +7,9 @@ class ProjectsController < ApplicationController
   end
 
   def show
+    project_id = params[:project_id]
+    project = Project.find_by(id: project_id)
+    representer = ProjectRepresenter.new(project)
+    render json: representer.as_json
   end
-
-  private
-
-  
-  
 end

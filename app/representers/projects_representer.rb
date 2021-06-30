@@ -18,7 +18,4 @@ class ProjectsRepresenter
   private
 
   attr_reader :projects
-
-  def project_source_name
-  end
 end
