@@ -1,20 +1,23 @@
 class SourcesController < ApplicationController
-  before_action :authenticate_user, only: [:index, :create, :show, :destroy, :update]
+  before_action :authenticate_user, only: [:index, :create, :show, :destroy, :update, :test]
+  before_action :validates_unique_source, only: [:create]
   def index
     representer = SourcesRepresenter.new(all_sources)
     render json: representer.as_json
   end
 
-  def test
-    UpdateHarvestJob.perform_later()
+  # Refreshed data for user in mongoDB and Sqlite3
+  def refresh
+    update_databases()
     render json: {message: "Job performed successfully"}, status: :ok
   end
 
   def create
     new_source = Source.new(source_params)
     new_source.user_id = current_user.id
-
     if new_source.save
+      # Creates generic workspace for Harvest clients
+      create_harvest_workspace(new_source) if new_source.name == 'harvest'
       render json: { id: new_source.id, name: new_source.name, access_token: new_source.access_token, account_id: new_source.account_id }, status: :created
     else
       render json: new_user.errors, status: :unprocessable_entity
@@ -40,10 +43,13 @@ class SourcesController < ApplicationController
     end
   end
 
+  # Does not allow you to update name (will have to delete source if you want to make a new connection to an external API)
   def update
     source = Source.find_by(id: params[:source_id])
+    unless source_params[:name] == source.name
+      render json: {error: 'You cannot change external api for a source, you must delete that source if you wish to remove it'}, status: :unprocessable_entity
+    end
     if source && all_sources.include?(source)
-      source.name = source_params[:name]
       source.access_token = source_params[:access_token]
       source.account_id = source_params[:account_id]
       if source.save
@@ -57,7 +63,23 @@ class SourcesController < ApplicationController
   end
 
   private
+  # Parameters for source
   def source_params
     params.require(:source).permit(:name, :access_token, :account_id)
+  end
+
+  # Creates Harvest generic workspace 
+  def create_harvest_workspace(source)
+    Workspace.create!(original_id: 1, source_name: 'harvest', source_id: source.id)
+  end
+
+  # Makes sure there are not two sources with same name for a user 
+  def validates_unique_source
+    source_name = source_params[:name]
+    all_sources.each do |source|
+      if source.name == source_name
+        render json: {error: 'Cannot have two sources with same name, must delete one first'}, status: :unprocessable_entity
+      end
+    end
   end
 end

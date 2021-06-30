@@ -8,6 +8,7 @@ class AuthenticationController < ApplicationController
     user = User.find_by(email: params.require(:email))
     raise AuthenticationError unless user.authenticate(params.require(:password))
     jwt = AuthenticationTokenService.call(user.id)
+    update_databases()
 
     render json: { auth_token: jwt }, status: :created
   end
@@ -23,5 +24,3 @@ class AuthenticationController < ApplicationController
   end
 
 end
-
-# /localhost:3000/authenticate

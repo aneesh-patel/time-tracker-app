@@ -1,6 +1,19 @@
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token
 
+  # Updates mongodb and SQLite3 databases
+  def update_databases
+    all_sources.each do |source|
+      if source.name == 'harvest'
+        UpdateHarvestJob.perform_later(current_user.id)
+      elsif source.name == 'clockify'
+        # UpdateClockifyJob.perform_later(current_user.id)
+      elsif source.name == 'toggl'
+        # Trigger Toggle Active Job
+      end
+    end
+  end
+
   private
 
   # Authenticates user from JWT passed in Authorization header for each request
@@ -8,6 +21,7 @@ class ApplicationController < ActionController::API
     # Authorization: Bearer <token> is the header the user will pass
     token, _options = token_and_options(request)
     user_id = AuthenticationTokenService.decode(token).to_i
+    puts "Auth Token gives user id of #{user_id}"
     @current_user = User.find(user_id)
   rescue ActiveRecord::RecordNotFound
     render status: :unauthorized
@@ -70,6 +84,8 @@ class ApplicationController < ActionController::API
     end
     return time_entries
   end
+
+  
 
 
 end

@@ -9,7 +9,7 @@ class ProjectsController < ApplicationController
   def show
     project_id = params[:project_id]
     project = Project.find_by(id: project_id)
-    if project
+    if project && all_projects.include?(project)
       representer = ProjectRepresenter.new(project)
       render json: representer.as_json
     else
