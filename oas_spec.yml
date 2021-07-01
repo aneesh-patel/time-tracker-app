@@ -1,0 +1,566 @@
+openapi: "3.0.0"
+info:
+  title: Time Tracking Consolidator
+  version: "1.0"
+tags:
+  - name: Login/Authenticate
+    description: How to authenticate a user
+  - name: Project
+    description: Everything you need to visualize projects
+  - name: Task
+    description: Everything you need to visualize tasks
+  - name: Time Entry
+    description: Everything you need to visualize time entries
+  - name: Source
+    description: Everything you need to add, edit , or delete a source
+  - name: User
+    description: Everything you need to visualize, edit, or sign up the user
+  - name: Refresh
+    description: How to refresh information for user
+paths:
+  /authenticate:
+    description: Logging In/Authenticating a user
+    post:
+      tags:
+        - Login/Authenticate
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCredentials'
+      responses:
+        "200":
+          description: authentication approved for user - auth token to be used on future requests for user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+  /refresh:
+    description: Refreshes datbases with external API information to grab/contain most recent data
+    get: 
+      tags:
+        - Refresh
+      summary: Refresh user data information
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      responses:
+        "200":
+          description: Asynchronous call to refresh data has been triggered. This may take several seconds to update
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Message indicating asynchronous job has been called to update data
+                properties:
+                  message:
+                    type: string
+                    example: "Information will be updated shortly"
+  /projects:
+    description: All projects for specified user
+    get: 
+      tags:
+        - Project
+      summary: Retrieve all projects for user
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      responses:
+        "200":
+          description: all projects matching specified user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projects'
+  /projects/{project_id}:
+    description: a specified project
+    get:
+      tags:
+        - Project
+      summary: retrieve project
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        "200":
+          description: Specific project corresponding to project_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+  
+  /tasks:
+    description: Collection of all of user's tasks
+    get:
+      tags:
+        - Task
+      summary: Retrieve all tasks for user
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      responses:
+        "200":
+          description: all tasks matching specified user
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tasks'
+  /tasks/{task_id}:
+    description: a specified task
+    get:
+      tags:
+        - Task
+      summary: retrieve task
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        "200":
+          description: Specific task corresponding to task_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+  /projects/{project_id}/tasks:
+    description: all tasks for a specified project
+    get:
+      tags:
+        - Task
+      summary: retireve all tasks for a specified project
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        "200":
+          description: All tasks for specified project retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tasks'
+  
+  
+  /time_entries:
+    description: Collection of all time entries for user
+    get: 
+      tags:
+        - Time Entry
+      summary: Retrieve all time entries for user
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      responses:
+        "200":
+          description: all time entries for specified user that have a project or task associated with them
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeEntries'
+  /time_entries/{time_entry_id}:
+    description: a time entry
+    get:
+      tags:
+        - Time Entry
+      summary: retrieve time entry
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/TimeEntryId'
+      responses:
+        "200":
+          description: Specific time entry corresponding to time_entry_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeEntry'
+  /tasks/{task_id}/time_entries:
+    description: all time entries for a specified task
+    get:
+      tags:
+        - Time Entry
+      summary: retrieves all time entries for a specified task
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        "200":
+          description: All time entries for specified task retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeEntries'
+  /users:
+    description: users collection
+    post:
+      tags:
+        - User
+      summary: signup a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: new user credentials
+              properties:
+                user:
+                  $ref: '#/components/schemas/NewUser'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithAuthToken'
+  /users/me:
+    description: user information
+    get:
+      tags: 
+        - User
+      summary: retrieve user information
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      responses:
+        '200':
+          description: user found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    post:
+      tags:
+        - User
+      summary: edit users current information
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      requestBody:
+        required: true
+        content: 
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: 'Update successful'
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /sources:
+    description: sources collection
+    get:
+      tags:
+        - Source
+      summary: retrieves all sources and their info for corresponding user
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sources'
+    post:
+      tags: 
+        - Source
+      summary: connects a new source to the user (eg. Harvest or Toggl)
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSource'
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Source'
+  /sources/{source_id}:
+    description: specific source entry corresponding to service (harvest, toggl, clockify)
+    get:
+      tags:
+        - Source
+      summary: retrieves specified source entry
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/SourceId'
+      responses:
+        '200':
+          description: Source entry successfully found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Source'
+    post:
+      tags:
+        - Source
+      summary: edits specified source entry
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/SourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSource'
+      responses:
+        '202':
+          description: Source entry successfully edited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Source'
+    delete:
+      tags: 
+        - Source
+      summary: deletes specified source entry
+      parameters: 
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/SourceId'
+      responses:
+        '204':
+          description: 'Deleted'
+    
+components:
+  schemas:
+    UserCredentials:
+      type: object
+      description: email and password combination for user
+      properties:
+        email:
+          type: string
+          format: email
+          description: email of user
+          example: 'jkrowling@example.com'
+        password:
+          type: string
+          format: password
+          description: password of user
+          example: 'foobar'
+    Project:
+      type: object
+      description: a project object
+      properties:
+        id:
+          type: integer
+          description: project id
+          example: "1"
+        name:
+          type: string
+          example: "Work Project"
+        start_date:
+          type: string
+          format: datetime
+          example: "Mon, 21 Jun 2021 19:55:12 +0000"
+        due_date:
+          type: string
+          format: datetime
+          example: "Mon, 21 Jun 2021 19:58:12 +0000"
+        source:
+          type: string
+          example: "harvest"
+    Projects:
+      type: array
+      description: array of project objects
+      items:
+        $ref: '#/components/schemas/Project'
+    Task:
+      type: object
+      description: a task object
+      properties:
+        id:
+          type: integer
+          description: task id
+          example: "3"
+        name:
+          type: string
+          example: Programming
+        project_id:
+          type: integer
+          example: "2"
+    Tasks:
+      type: array
+      description: array of task objects
+      items:
+        $ref: '#/components/schemas/Task'
+    TimeEntry:
+      type: object
+      description: time entry object
+      properties:
+        id:
+          type: integer
+          description: id of time entry
+          example: "2"
+        duration_seconds:
+          type: integer
+          description: duration of time entry measured in seconds
+          example: "3756"
+        task_id:
+          type: integer
+          example: "1"
+        started_at:
+          type: string
+          format: datetime
+          description: datetime when time entry was created
+          example: "Mon, 21 Jun 2021 19:55:12 +0000"
+        project_id:
+          type: integer
+          example: "3"
+    TimeEntries:
+      type: array
+      description: array of time entry objects
+      items:
+        $ref: '#/components/schemas/TimeEntry'
+    User:
+      type: object
+      description: user info
+      properties:
+        id:
+          type: integer
+          description: id of user
+          example: "2"
+        name:
+          type: string
+          description: name of user
+          example: 'JK Rowling'
+        email:
+          type: string
+          format: email
+          description: email of user
+          example: 'jkrowling@example.com'
+    NewUser:
+      type: object
+      description: user info
+      properties:
+        name:
+          type: string
+          description: name of new user
+          example: 'JK Rowling'
+        email:
+          type: string
+          format: email
+          description: email of new user
+          example: 'jkrowling@example.com'
+        password:
+          type: string
+          format: password
+          description: password of new user
+          example: 'foobar'
+        password_confirmation:
+          type: string
+          format: password
+          description: confirms password for new user
+          example: 'foobar'
+    UserWithAuthToken:
+      type: object
+      description: response object with authorization token
+      properties:
+        id:
+          type: integer
+          description: id of user
+          example: "2"
+        email:
+          type: string
+          format: email
+          description: email of new user
+          example: 'jkrowling@example.com'
+        name:
+          type: string
+          description: name of new user
+          example: 'JK Rowling'
+        auth_token:
+          type: string
+          description: authorization token for user to be used on subsequent requests
+          example: 'JFFJeifjewojfioew39203923nfjewnewf'
+          
+    AuthToken:
+      type: object
+      description: response object with authorization token
+      properties:
+        auth_token:
+          type: string
+          description: authorization token for user to be used on subsequent requests
+          example: 'JFFJeifjewojfioew39203923nfjewnewf'
+    NewSource:
+      type: object
+      description: source information for connecting to specified source
+      properties:
+        name:
+          type: string
+          description: must be either "harvest", "toggl", or "clockify"
+          example: toggl
+        access_token:
+          type: string
+          description: personal access key for respective service
+          example: "feijfiwejf93032903jfijfi"
+        account_id:
+          type: string
+          description: account id if using harvest otherwise use nil
+          example: '1909382'
+    Source:
+      type: object
+      description: source object with source information
+      properties:
+        id:
+          type: integer
+          example: '3'
+        name:
+          type: string
+          description: will be either "harvest", "toggl", or "clockify"
+          example: toggl
+        access_token:
+          type: string
+          description: personal access key for respective service
+          example: 'jhfkjfh82398dkd'
+        account_id:
+          type: string
+          description: account id for harvest clients (nil otherwise)
+          example: '389202'
+    Sources:
+      type: array
+      description: collection of source objects with source info
+      items:
+        $ref: '#/components/schemas/Source'
+  parameters:
+    Authorization:
+      name: Authorization
+      description: Need to put token supplied during authentication in Authorization header in format "Bearer TOKEN"
+      in: header
+      required: true
+      schema: 
+        type: string
+        example: Bearer jrefhiurhe7348934bf348379fh349f34.sdfh7848473834fh
+    ProjectId:
+      name: project_id
+      description: ID of project requested
+      in: path
+      required: true
+      schema:
+        type: string
+        example: "4"
+    TaskId:
+      name: task_id
+      description: ID of task requested
+      in: path
+      required: true
+      schema:
+        type: string
+        example: "4"
+    TimeEntryId:
+      name: time_entry_id
+      description: ID of time entry requested
+      in: path
+      required: true
+      schema:
+        type: string
+        example: "4"
+    SourceId:
+      name: source_id
+      description: ID of source entry requested
+      in: path
+      required: true
+      schema:
+        type: string
+        example: "4"
