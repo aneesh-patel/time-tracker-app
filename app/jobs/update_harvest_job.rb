@@ -186,7 +186,6 @@ class UpdateHarvestJob < ApplicationJob
 
   # Gets associated user's harvest source
   def harvest_source
-    # Will have to change how we find source after JWTs are implemented
     Source.find_by(user_id: user_id, name: 'harvest')
   end
 
