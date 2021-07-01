@@ -11,7 +11,12 @@ Rails.application.routes.draw do
   get    'projects/:project_id', to: 'projects#show'
   
 
-  
+  get    'tasks',                to: 'tasks#index'
+  get    'tasks/:task_id',       to: 'tasks#show'
+
+  get    'time_entries',                to: 'time_entries#index'
+  get    'time_entries/:time_entry_id', to: 'time_entries#show'
+
   
   
   
