@@ -9,7 +9,7 @@ class SourcesController < ApplicationController
   # Refreshed data for user in mongoDB and Sqlite3
   def refresh
     update_databases()
-    render json: {message: "Job performed successfully"}, status: :ok
+    render json: {message: "Information will be updated shortly"}, status: :ok
   end
 
   def create

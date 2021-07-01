@@ -9,6 +9,7 @@ class TimeEntryRepresenter
       duration_seconds: time_entry.duration_seconds,
       task_id: time_entry.task_id,
       started_at: time_entry.started_at,
+      project_id: time_entry.task.project.id,
     }
   end
 
