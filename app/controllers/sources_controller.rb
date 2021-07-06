@@ -1,5 +1,5 @@
 class SourcesController < ApplicationController
-  before_action :authenticate_user, only: [:index, :create, :show, :destroy, :update, :test]
+  before_action :authenticate_user, only: [:index, :create, :show, :destroy, :update, :refresh]
   before_action :validates_unique_source, only: [:create]
   def index
     representer = SourcesRepresenter.new(all_sources)
