@@ -8,12 +8,12 @@ class SourcesController < ApplicationController
 
   # Refreshed data for user in mongoDB and Sqlite3
   def refresh
-    update_databases_test()
+    update_databases()
     render json: {message: "Information will be updated shortly"}, status: :ok
   end
 
   def test_for_polling
-    update_databases()
+    update_databases_polling()
     render json: {message: "testing in progress, fingers crossed"}, status: :ok
   end
 

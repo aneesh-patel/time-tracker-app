@@ -7,9 +7,9 @@ class ApplicationController < ActionController::API
       if source.name == 'harvest'
         UpdateHarvestPollingJob.perform_later(current_user.id)
       elsif source.name == 'clockify'
-        # UpdateClockifyJob.perform_later(current_user.id)
+        UpdateClockifyJob.perform_later(current_user.id)
       elsif source.name == 'toggl'
-        # Trigger Toggle Active Job
+        UpdateTogglJob.perform_later(current_user.id)
       end
     end
   end
