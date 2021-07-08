@@ -17,6 +17,6 @@ test:
 production:
   clients:
     default:
-      uri: ENV['MONGODB_URI']
+      uri: mongodb+srv://aneeshPatel:Monisha0u!@cluster0.hbwxg.mongodb.net/TimeTrackingData?retryWrites=true&w=majority
       options:
         server_selection_timeout: 5
