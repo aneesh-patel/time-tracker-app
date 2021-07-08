@@ -6,6 +6,6 @@ class FetchData
   field :source_user_id,       type: String
   field :resource,             type: String
   field :resource_original_id, type: String
-  field :payload,              type: Hash
+  field :payload
 
 end
