@@ -224,8 +224,8 @@ class UpdateClockifyJob < ApplicationJob
       workspace.each do |time_entry|
         existing_time_entry = TimeEntry.find_by(original_id: time_entry["id"])
         if !existing_time_entry
-          # ERROR OCCURS HERE ON LINE 228 - SAYS THAT THERE'S NO ID METHOD FOR NIL
-          task_id = Task.find_by(original_id: time_entry["taskId"]).id || create_placeholder_task(time_entry).id
+          task = Task.find_by(original_id: time_entry["taskId"]) || create_placeholder_task(time_entry)
+          task_id = task.id
           start_time = Time.new(time_entry["timeInterval"]["start"])
           end_time = Time.new(time_entry["timeInterval"]["end"])
           duration = (start_time - end_time).to_i

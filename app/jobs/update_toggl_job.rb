@@ -111,7 +111,8 @@ class UpdateTogglJob < ApplicationJob
       if existing_time_entry
         existing_time_entry["duration_seconds"] = toggl_entry["duration"]
       else
-        task_id = Task.find_by(original_id: toggl_entry["tid"]).id || create_placeholder_task(toggl_entry).id
+        task = Task.find_by(original_id: toggl_entry["tid"]) || create_placeholder_task(toggl_entry)
+        task_id = task.id
         TimeEntry.create!(
           original_id: toggl_entry["id"],
           duration_seconds: toggl_entry["duration"],
@@ -123,20 +124,13 @@ class UpdateTogglJob < ApplicationJob
   end
 
   def create_placeholder_task(toggl_entry)
-    original_project_id = Project.find_by(original_id: toggl_entry["pid"]).id
-    project_id = original_project_id || create_placeholder_project(toggl_entry["wid"])
-    Task.create!(
-      original_id: nil,
-      name: nil,
-      project_id: project_id
-    )
+    original_project = Project.find_by(original_id: toggl_entry["pid"])
+    project_id = !!original_project ? original_project.id : create_placeholder_project(toggl_entry["wid"]).id
+    Task.create!(project_id: project_id)
   end
 
   def create_placeholder_project(workspace_id)
     id = Workspace.find_by(original_id: workspace_id).id
-    project = Project.create!(
-      workspace_id: id
-    )
-    project.id
+    Project.create!(workspace_id: id)
   end
 end

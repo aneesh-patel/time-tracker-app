@@ -26,6 +26,7 @@ class ProjectsController < ApplicationController
 
   private
   
+  # Will need to optimize === currently is O(3N)
   def sort_time_entries_by_date_grouped_by_project(start_date, end_date)
     sorted = {}
     all_projects.each do |project|
