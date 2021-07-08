@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   get    'time_entries',                   to: 'time_entries#index'
   get    'time_entries/:time_entry_id',    to: 'time_entries#show'
   get    'tasks/:task_id/time_entries',    to: 'time_entries#show_for_task'
+  post   'time_entries/filter_by_date',    to: 'time_entries#filter_by_date'
 
   
   

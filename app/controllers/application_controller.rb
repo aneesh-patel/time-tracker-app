@@ -5,7 +5,7 @@ class ApplicationController < ActionController::API
   def update_databases
     all_sources.each do |source|
       if source.name == 'harvest'
-        UpdateHarvestPollingJob.perform_later(current_user.id)
+        UpdateHarvestJob.perform_later(current_user.id)
       elsif source.name == 'clockify'
         UpdateClockifyJob.perform_later(current_user.id)
       elsif source.name == 'toggl'
@@ -14,10 +14,10 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def update_databases_test
+  def update_databases_polling
     all_sources.each do |source|
       if source.name == 'harvest'
-        UpdateHarvestJob.perform_later(current_user.id)
+        UpdateHarvestPollingJob.perform_later(current_user.id)
       end
     end
   end

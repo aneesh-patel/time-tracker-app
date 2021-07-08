@@ -5,7 +5,6 @@ class UpdateHarvestPollingJob < ApplicationJob
     @user_id = user_id[0]
     dump_all_data_harvest()
     projects = FetchData.where(user_id: user_id[0], resource: 'project', source: 'harvest').to_a
-    puts projects
     tasks = FetchData.where(user_id: user_id[0], resource: 'task', source: 'harvest').to_a
     time_entries = FetchData.where(user_id: user_id[0], resource: 'time_entry', source: 'harvest').to_a
     normalize_projects_harvest(projects)
