@@ -87,6 +87,7 @@ GEM
     marcel (1.0.1)
     method_source (1.0.0)
     mini_mime (1.1.0)
+    mini_portile2 (2.5.3)
     minitest (5.14.4)
     mongo (2.14.0)
       bson (>= 4.8.2, < 5.0.0)
@@ -95,10 +96,14 @@ GEM
       mongo (>= 2.7.0, < 3.0.0)
     msgpack (1.4.2)
     nio4r (2.5.7)
-    nokogiri (1.11.7-arm64-darwin)
+    nokogiri (1.11.7)
+      mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     nokogiri (1.11.7-x86_64-darwin)
       racc (~> 1.4)
+    nokogiri (1.11.7-x86_64-linux)
+      racc (~> 1.4)
+    pg (1.2.3)
     puma (5.3.2)
       nio4r (~> 2.0)
     racc (1.5.2)
@@ -160,7 +165,6 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    sqlite3 (1.4.2)
     thor (1.1.0)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
@@ -170,7 +174,9 @@ GEM
     zeitwerk (2.4.2)
 
 PLATFORMS
+  ruby
   universal-darwin-20
+  x86_64-linux
 
 DEPENDENCIES
   bcrypt (~> 3.1.7)
@@ -179,12 +185,15 @@ DEPENDENCIES
   jwt
   listen (~> 3.3)
   mongoid (~> 7.0.5)
+  pg
   puma (~> 5.0)
   rails (~> 6.1.4)
   rspec-rails
   spring
-  sqlite3 (~> 1.4)
   tzinfo-data
+
+RUBY VERSION
+   ruby 2.6.3p62
 
 BUNDLED WITH
    2.2.21
