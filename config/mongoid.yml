@@ -17,6 +17,6 @@ test:
 production:
   clients:
     default:
-      uri: ENV[MONGODB_URI]
+      uri: ENV['MONGODB_URI']
       options:
         server_selection_timeout: 5
