@@ -1,5 +1,5 @@
 class SourcesController < ApplicationController
-  before_action :authenticate_user, only: [:index, :create, :show, :destroy, :update, :refresh]
+  before_action :authenticate_user, only: [:index, :create, :show, :destroy, :update, :refresh, :test_for_polling]
   before_action :validates_unique_source, only: [:create]
   def index
     representer = SourcesRepresenter.new(all_sources)
@@ -8,8 +8,13 @@ class SourcesController < ApplicationController
 
   # Refreshed data for user in mongoDB and Sqlite3
   def refresh
-    update_databases()
+    update_databases_test()
     render json: {message: "Information will be updated shortly"}, status: :ok
+  end
+
+  def test_for_polling
+    update_databases()
+    render json: {message: "testing in progress, fingers crossed"}, status: :ok
   end
 
   def create

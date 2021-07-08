@@ -27,6 +27,7 @@ Rails.application.routes.draw do
 
 
   get    'refresh',                        to: 'sources#refresh'
+  get    'test/polling',                   to: 'sources#test_for_polling'
   get    'users/index'
   
   

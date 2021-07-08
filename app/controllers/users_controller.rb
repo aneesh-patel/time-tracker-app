@@ -2,10 +2,9 @@ class UsersController < ApplicationController
   before_action :authenticate_user, only: [:show, :update]
   
   def create
-    new_user = User.new(user_params)
-    # must send params in form {user: {name: 'blah', email: 'blah', password: 'blah', password_confirmation: 'blah'}}
+  new_user = User.new(user_params)
 
-    if new_user.save
+  if new_user.save
       render json: {id: new_user.id, email: new_user.email, name: new_user.name, auth_token: AuthenticationTokenService.call(new_user.id)}, status: :created
     else
       render json: new_user.errors, status: :unprocessable_entity

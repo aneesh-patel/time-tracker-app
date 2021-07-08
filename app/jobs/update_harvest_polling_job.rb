@@ -1,4 +1,4 @@
-class UpdateHarvestJob < ApplicationJob
+class UpdateHarvestPollingJob < ApplicationJob
   queue_as :default
 
   def perform(*user_id)
@@ -16,10 +16,11 @@ class UpdateHarvestJob < ApplicationJob
   private
   attr_reader :user_id
 
-  # Time for one month ago - only want to pull data 1 month old
+  # Datetime for 15 minutes ago
   def last_updated_time
-    CGI.escape(1.month.ago.to_date.to_formatted_s)
+    CGI.escape(15.minutes.ago.to_datetime.to_formatted_s(:iso8601))
   end
+
   # Gets harvest workspace
   def harvest_workspace
     Workspace.find_by(source_id: Source.find_by(user_id: user_id, name: 'harvest').id)
@@ -88,7 +89,7 @@ class UpdateHarvestJob < ApplicationJob
 
   # Pulls out time_entry data from Harvest API
   def pull_time_entries_harvest(user_id)
-    harvest_uri = URI("https://api.harvestapp.com/v2/time_entries?user_id=#{user_id}&from=#{last_updated_time}")
+    harvest_uri = URI("https://api.harvestapp.com/v2/time_entries?user_id=#{user_id}&updated_since=#{last_updated_time}")
 
     Net::HTTP.start(harvest_uri.host, harvest_uri.port, use_ssl: true) do |http|
       harvest_request = Net::HTTP::Get.new harvest_uri
@@ -106,7 +107,7 @@ class UpdateHarvestJob < ApplicationJob
 
   # Pulls out tasks from Harvest API
   def pull_tasks_harvest
-    harvest_uri = URI("https://api.harvestapp.com/v2/task_assignments")
+    harvest_uri = URI("https://api.harvestapp.com/v2/task_assignments?updated_since=#{last_updated_time}")
 
     Net::HTTP.start(harvest_uri.host, harvest_uri.port, use_ssl: true) do |http|
       harvest_request = Net::HTTP::Get.new harvest_uri
@@ -124,7 +125,7 @@ class UpdateHarvestJob < ApplicationJob
 
   # Pulls out all projects from Harvest API
   def pull_projects_harvest
-    harvest_uri = URI("https://api.harvestapp.com/v2/projects")
+    harvest_uri = URI("https://api.harvestapp.com/v2/projects?updated_since=#{last_updated_time}")
 
     Net::HTTP.start(harvest_uri.host, harvest_uri.port, use_ssl: true) do |http|
       harvest_request = Net::HTTP::Get.new harvest_uri
@@ -226,3 +227,5 @@ class UpdateHarvestJob < ApplicationJob
     end
   end
 end
+
+
