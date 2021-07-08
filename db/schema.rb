@@ -12,12 +12,15 @@
 
 ActiveRecord::Schema.define(version: 2021_06_29_161144) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "projects", force: :cascade do |t|
     t.text "original_id"
     t.text "name"
     t.datetime "due_date"
     t.datetime "start_date"
-    t.integer "workspace_id", null: false
+    t.bigint "workspace_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["workspace_id"], name: "index_projects_on_workspace_id"
@@ -27,7 +30,7 @@ ActiveRecord::Schema.define(version: 2021_06_29_161144) do
     t.text "name"
     t.text "access_token"
     t.text "account_id"
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_sources_on_user_id"
@@ -35,7 +38,7 @@ ActiveRecord::Schema.define(version: 2021_06_29_161144) do
 
   create_table "tasks", force: :cascade do |t|
     t.text "name"
-    t.integer "project_id", null: false
+    t.bigint "project_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.text "original_id"
@@ -45,7 +48,7 @@ ActiveRecord::Schema.define(version: 2021_06_29_161144) do
   create_table "time_entries", force: :cascade do |t|
     t.integer "duration_seconds"
     t.datetime "started_at"
-    t.integer "task_id", null: false
+    t.bigint "task_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.text "original_id"
@@ -63,7 +66,7 @@ ActiveRecord::Schema.define(version: 2021_06_29_161144) do
   create_table "workspaces", force: :cascade do |t|
     t.text "original_id"
     t.text "source_name"
-    t.integer "source_id", null: false
+    t.bigint "source_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["source_id"], name: "index_workspaces_on_source_id"

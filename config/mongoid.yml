@@ -14,3 +14,9 @@ test:
         read:
           mode: :primary
         max_pool_size: 1
+production:
+  clients:
+    default:
+      uri: process.env.MONGODB_URI
+      options:
+        server_selection_timeout: 5
