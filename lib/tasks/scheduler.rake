@@ -1,6 +1,6 @@
 desc "This task is called by the Heroku scheduler add-on"
 task :update_database => :environment do
-  Source.all.each do |source| do
+  Source.all.each do |source|
     if source.name == 'harvest'
       UpdateHarvestPollingJob.perform_later(source.user_id)
     elsif source.name == 'clockify'
