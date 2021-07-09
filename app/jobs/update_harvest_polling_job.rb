@@ -15,9 +15,9 @@ class UpdateHarvestPollingJob < ApplicationJob
   private
   attr_reader :user_id
 
-  # Datetime for 15 minutes ago
+  # Datetime for 30 minutes ago
   def last_updated_time
-    CGI.escape(15.minutes.ago.to_datetime.to_formatted_s(:iso8601))
+    CGI.escape(30.minutes.ago.to_datetime.to_formatted_s(:iso8601))
   end
 
   # Gets harvest workspace
