@@ -7,7 +7,7 @@ class ApplicationController < ActionController::API
       if source.name == 'harvest'
         UpdateHarvestJob.perform_later(current_user.id)
       elsif source.name == 'clockify'
-        UpdateClockifyJob.perform_later(current_user.id)
+        #UpdateClockifyJob.perform_later(current_user.id)
       elsif source.name == 'toggl'
         UpdateTogglJob.perform_later(current_user.id)
       end
