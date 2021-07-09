@@ -10,117 +10,89 @@ class UpdateClockifyJob < ApplicationJob
     update_clockify_tasks
     update_clockify_time_entries
   end
-​
   private
-​
   # === Extract data ===
-​
   # Gets associated user's clockify source
   def clockify_source
     Source.find_by(user_id: @user_id, name: 'clockify')
   end
-​
   # Gets clockify api key
   def clockify_api_key
     clockify_source["access_token"] #|| clockify_source -> Necessary?
   end
-​
   # Gets source id
   def clockify_source_id
     clockify_source["id"] #|| clockify_source -> Necessary?
   end
-​
   # Extract all payloads and return a hash with all of them
   def orchestrate_data_dump_clockify
     # To do: dump per resrouce type as in harvest
     user_payload = request_simple_clockify('user')
     @clockify_user_id = user_payload["id"]
     update_or_create_entry("user", user_payload)
-​
     workspaces_payload = request_simple_clockify('workspaces')
     @workspace_ids = extract_workspace_ids(workspaces_payload)
     update_or_create_entry("workspace", workspaces_payload)
-​
     @projects_payload = request_projects_clockify
     @project_ids = extract_project_ids
     update_or_create_entry("project", @projects_payload)
-​
     @tasks_payload = request_tasks_clockify
     update_or_create_entry("task", @tasks_payload)
-​
     @time_entries_payload = request_time_entries_clockify
     update_or_create_entry("time_entry", @time_entries_payload)
   end
-​
   def request_simple_clockify(endpoint)
     uri = URI.parse("https://api.clockify.me/api/v1/#{endpoint}")
     request = Net::HTTP::Get.new(uri)
     request.content_type = "application/json"
     request["X-Api-Key"] = @api_key
-​
     req_options = {
       use_ssl: uri.scheme == "https",
     }
-​
     response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
       http.request(request)
     end
-​
     data = JSON.parse(response.body)
   end
-​
   def request_projects_clockify
     # Return a user's Clockify projects
     projects = []
-​
     @workspace_ids.each do |id|
       uri = URI.parse("https://api.clockify.me/api/v1/workspaces/#{id}/projects")
       request = Net::HTTP::Get.new(uri)
       request.content_type = "application/json"
       request["X-Api-Key"] = @api_key
-​
       req_options = {
         use_ssl: uri.scheme == "https",
       }
-​
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
-​
       data = JSON.parse(response.body)
       projects.push(data)
     end
-​
     projects
   end
-​
   def request_tasks_clockify
     tasks = []
-​
     @project_ids.each do |ids|
       uri = URI.parse("https://api.clockify.me/api/v1/workspaces/#{ids[1]}/projects/#{ids[0]}/tasks")
       request = Net::HTTP::Get.new(uri)
       request.content_type = "application/json"
       request["X-Api-Key"] = @api_key
-​
       req_options = {
         use_ssl: uri.scheme == "https",
       }
-​
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
-​
       data = JSON.parse(response.body)
       tasks.push(data)
     end
-​
     tasks
   end
-​
   def request_time_entries_clockify
     time_entries = []
-​
     @workspace_ids.each do |workspace|
       uri = URI.parse("https://api.clockify.me/api/v1/workspaces/#{workspace}/user/#{@clockify_user_id}/time-entries")
       request = Net::HTTP::Get.new(uri)
@@ -132,32 +104,25 @@ class UpdateClockifyJob < ApplicationJob
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
-​
       data = JSON.parse(response.body)
       time_entries.push(data)
     end
-​
     time_entries
   end
-​
   # === Process request data before Mongo dump ===
-​
   def extract_workspace_ids(payload)
     # Get the user's workspace ids
     ids = []
     payload.each { |hash| ids.push(hash["id"]) }
     ids
   end
-​
   def extract_project_ids
     data = []
     @projects_payload.each do |subarray|
       subarray.each { |hash| data.push([hash['id'], hash['workspaceId']]) }
     end
-​
     data
   end
-​
   def update_or_create_entry(resource_type, payload)
     same_entry = FetchData.where(resource: resource_type, source_user_id: @clockify_user_id)
     if same_entry.length == 0
@@ -166,13 +131,10 @@ class UpdateClockifyJob < ApplicationJob
       same_entry.update(payload: payload)
     end
   end
-​
   # === SQL insertion and adaption ===
-​
   def update_clockify_workspaces
     @workspace_ids.each do |id|
       workspace_entry = Workspace.find_by(original_id: id)
-​
       if !workspace_entry
         Workspace.create!(
           original_id: id,
@@ -182,7 +144,6 @@ class UpdateClockifyJob < ApplicationJob
       end
     end
   end
-​
   def update_clockify_projects
     @projects_payload.each do |workspace|
       workspace.each do |project|
@@ -202,7 +163,6 @@ class UpdateClockifyJob < ApplicationJob
       end
     end
   end
-​
   def update_clockify_tasks
     @tasks_payload.each do |array|
       array.each do |task|
@@ -219,7 +179,6 @@ class UpdateClockifyJob < ApplicationJob
       end
     end
   end
-​
   def update_clockify_time_entries
     @time_entries_payload.each do |workspace|
       workspace.each do |time_entry|
@@ -240,7 +199,6 @@ class UpdateClockifyJob < ApplicationJob
       end
     end
   end
-​
   def create_placeholder_task(time_entry)
     original_project_id = time_entry["projectId"]
     project_id = Project.find_by(original_id: original_project_id).id
