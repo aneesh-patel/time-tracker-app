@@ -9,7 +9,7 @@ Rails.application.routes.draw do
 
   get    'projects',                       to: 'projects#index'
   get    'projects/:project_id',           to: 'projects#show'
-  get    'projects/map/time/:startDate/:endDate',              to: 'projects#map_by_time'
+  get    'projects/map/time',              to: 'projects#map_by_time'
   
 
   get    'tasks',                          to: 'tasks#index'
