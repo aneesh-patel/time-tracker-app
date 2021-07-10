@@ -18,11 +18,9 @@ class ProjectsController < ApplicationController
   end
 
   def map_by_time
-    start_date = CGI.unescape(params[:startDate]).to_datetime
-    end_date = CGI.unescape(params[:endDate]).to_datetime
-    puts start_date
-    puts end_date
-    puts all_projects
+    start_date = CGI.unescape(params.require(:startDate)).to_datetime
+    end_date = CGI.unescape(params.require(:endDate)).to_datetime
+    
     sorted = sort_time_entries_by_date_grouped_by_project(start_date, end_date)
     render json: sorted, status: :ok
   end
