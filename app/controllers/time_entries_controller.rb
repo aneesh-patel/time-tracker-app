@@ -4,7 +4,23 @@ class TimeEntriesController < ApplicationController
 
   def index
     representer = TimeEntriesRepresenter.new(all_time_entries)
-    render json: representer.as_json
+    if params[:startDate] && params[:endDate]
+      begin
+        start_date = CGI.unescape(params[:startDate])
+        end_date = CGI.unescape(params[:endDate])
+        start_date = start_date.to_datetime
+        end_date = end_date.to_date_time
+      rescue
+        render json: {message: 'must put startDate or endDate parameter in ISO8601 formatted string if passing as a query param'}, status: :unprocessable_entity
+      else
+        representer = representer.select do |time_entry|
+          time_entry.started_at >= startDate && time_entry.started_at <= endDate
+        end
+        render json: representer.as_json
+      end
+    else
+      render json: representer.as_json
+    end
   end
 
   def show
@@ -22,7 +38,23 @@ class TimeEntriesController < ApplicationController
     if task && all_tasks.include?(task)
       time_entries = all_time_entries.filter { |time_entry| time_entry.task_id == task.id }
       representer = new TimeEntriesRepresenter(time_entries)
-      render json: representer.as_json
+      if params[:startDate] && params[:endDate]
+        begin
+          start_date = CGI.unescape(params[:startDate])
+          end_date = CGI.unescape(params[:endDate])
+          start_date = start_date.to_datetime
+          end_date = end_date.to_date_time
+        rescue
+          render json: {message: 'must put startDate or endDate parameter in ISO8601 formatted string if passing as a query param'}, status: :unprocessable_entity
+        else
+          representer = representer.select do |time_entry|
+            time_entry.started_at >= startDate && time_entry.started_at <= endDate
+          end
+          render json: representer.as_json
+        end
+      else
+        render json: representer.as_json
+      end
     else
       render json: {error: "could not find task with id of #{params[:task_id]}"}, status: :not_found
     end

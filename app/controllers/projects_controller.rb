@@ -3,7 +3,25 @@ class ProjectsController < ApplicationController
 
   def index
     representer = ProjectsRepresenter.new(all_projects)
-    render json: representer.as_json
+    start_date = nil
+    end_date = nil
+    if params[:startDate] && params[:endDate]
+      begin
+        start_date = CGI.unescape(params[:startDate])
+        end_date = CGI.unescape(params[:endDate])
+        start_date = start_date.to_datetime
+        end_date = end_date.to_date_time
+      rescue
+        render json: {message: 'must put startDate or endDate parameter in ISO8601 formatted string if passing as a query param'}, status: :unprocessable_entity
+      else
+        representer = representer.select do |project|
+          project.start_date >= startDate && project.start_date <= endDate
+        end
+        render json: representer.as_json
+      end
+    else
+      render json: representer.as_json
+    end
   end
 
   def show
