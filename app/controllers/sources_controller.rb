@@ -25,7 +25,7 @@ class SourcesController < ApplicationController
       create_harvest_workspace(new_source) if new_source.name == 'harvest'
       render json: { id: new_source.id, name: new_source.name, access_token: new_source.access_token, account_id: new_source.account_id }, status: :created
     else
-      render json: new_user.errors, status: :unprocessable_entity
+      render json: new_source.errors, status: :unprocessable_entity
     end
   end
 
