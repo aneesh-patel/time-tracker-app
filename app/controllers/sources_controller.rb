@@ -20,7 +20,9 @@ class SourcesController < ApplicationController
   def create
     new_source = Source.new(source_params)
     new_source.user_id = current_user.id
-    if new_source.save
+    if new_source.name == 'harvest' && new_source.account_id.nil?
+      render json: { error: 'you must provide an account id for harvest' }
+    elsif new_source.save
       # Creates generic workspace for Harvest clients
       create_harvest_workspace(new_source) if new_source.name == 'harvest'
       render json: { id: new_source.id, name: new_source.name, access_token: new_source.access_token, account_id: new_source.account_id }, status: :created
@@ -57,7 +59,9 @@ class SourcesController < ApplicationController
     if source && all_sources.include?(source)
       source.access_token = source_params[:access_token]
       source.account_id = source_params[:account_id]
-      if source.save
+      if source.name == 'harvest' && source.account_id.nil?
+        render json: { error: 'you must provide an account id for harvest' }
+      elsif source.save
         render json: { id: source.id, name: source.name, access_token: source.access_token, account_id: source.account_id }, status: :found
       else
         render json: source.errors, status: :unprocessable_entity

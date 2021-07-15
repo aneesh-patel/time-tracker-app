@@ -47,24 +47,6 @@ class UpdateTogglJob < ApplicationJob
     end
   end
 
-  # #Added by Aneesh to get task information
-  # def request_tasks_toggl_for_project(project_id)
-  #   uri = URI.parse("https://api.track.toggl.com/api/v8/projects/#{project_id}/tasks")
-  #   request = Net::HTTP::Get.new(uri)
-  #   request.basic_auth(@api_key, "api_token")
-
-  #   req_options = {
-  #     use_ssl: uri.scheme == "https",
-  #   }
-
-  #   Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
-  #     response = http.request(request)
-  #     data = JSON.parse(response.body)
-  #     return data
-  #   end
-
-  # end
-
   def update_toggl_workspaces
     workspaces_payload = @payload["data"]["workspaces"]
     workspaces_payload.each do |workspace|
@@ -104,9 +86,8 @@ class UpdateTogglJob < ApplicationJob
 
 
   def update_toggl_tasks
-    puts("this is payload =========== #{@payload}")
     tasks_payload = @payload["data"]["tasks"]
-
+    
     if tasks_payload
       tasks_payload.each do |task|
         task_entry = Task.find_by(original_id: task["id"])
