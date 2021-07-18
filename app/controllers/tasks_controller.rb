@@ -3,7 +3,27 @@ class TasksController < ApplicationController
   
   def index
     representer = TasksRepresenter.new(all_tasks)
-    render json: representer.as_json
+    if params[:startDate] && params[:endDate]
+      begin
+        start_date = CGI.unescape(params[:startDate])
+        end_date = CGI.unescape(params[:endDate])
+        start_date = start_date.to_datetime
+        end_date = end_date.to_datetime
+      rescue
+        render json: {message: 'must put startDate or endDate parameter in ISO8601 formatted string if passing as a query param'}, status: :unprocessable_entity
+      else
+        time_range = (start_date)..(end_date)
+        tasks_in_range = Task.joins(:time_entries).where(time_entries: { started_at: time_range }).distinct
+        puts (tasks_in_range)
+        representer = TasksRepresenter.new(tasks_in_range)
+        representer_json = representer.as_json.select do |task|
+          all_projects.include?(Project.find_by(task.project_id))
+        end
+        render json: representer_json
+      end
+    else
+      render json: representer.as_json
+    end
   end
 
   def show

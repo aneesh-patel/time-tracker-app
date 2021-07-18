@@ -12,8 +12,17 @@ class ProjectsController < ApplicationController
       rescue
         render json: {message: 'must put startDate or endDate parameter in ISO8601 formatted string if passing as a query param'}, status: :unprocessable_entity
       else
+        time_range = (start_date)..(end_date)
+        tasks_in_range = Task.joins(:time_entries).where(time_entries: { started_at: time_range }).distinct
+        tasks_in_range = tasks_in_range.select do |task|
+          all_projects.include?(Project.find_by(task.project_id))
+        end
+        projects_in_range = tasks_in_range.map do |task|
+          Project.find_by(task.project_id)
+        end
+        representer = ProjectsRepresenter.new(projects_in_range)
         representer_json = representer.as_json.select do |project|
-          project[:start_date] >= start_date && project[:start_date] <= end_date unless project[:start_date].nil?
+          all_workspaces.include?(project[:workspace_id])
         end
         render json: representer_json
       end
