@@ -510,7 +510,7 @@ components:
       description: source information for editing existing source - cannot change name of source
       properties:
         source:
-          $ref: '#/components/schemas/Source'
+          $ref: '#/components/schemas/NewSource'
     Source:
       type: object
       description: source object with source information
