@@ -579,7 +579,7 @@ components:
     StartDate:
       in: query
       name: startDate
-      description: start of date range you are requesting resources for (if you use startDate you must also pass in endDate)
+      description: start of date range you are requesting resources for (if you use startDate you must also pass in endDate). Should be a datetime formatted to a string according to ISO8601.
       schema:
         type: string
         description: Datetime formatted to string according to ISO8601
@@ -588,9 +588,13 @@ components:
     EndDate:
       in: query
       name: endDate
-      description: end of date range you are requesting resources for (if you use endDate you must also pass in startDate)
+      description: end of date range you are requesting resources for (if you use endDate you must also pass in startDate). Should be a datetime formatted to a string according to ISO8601.
       schema:
         type: string
         description: Datetime formatted to string according to ISO8601
       required: false
       example: "2021-07-08T14%3A50%3A38%2B00%3A00"
+    
+    
+    
+        
