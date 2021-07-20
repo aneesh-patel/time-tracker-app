@@ -65,6 +65,8 @@ paths:
       summary: Retrieve all projects for user
       parameters:
         - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
       responses:
         "200":
           description: all projects matching specified user
@@ -97,6 +99,8 @@ paths:
       summary: Retrieve all tasks for user
       parameters:
         - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
       responses:
         "200":
           description: all tasks matching specified user
@@ -146,6 +150,8 @@ paths:
       summary: Retrieve all time entries for user
       parameters:
         - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
       responses:
         "200":
           description: all time entries for specified user that have a project or task associated with them
@@ -304,7 +310,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewSource'
+              $ref: '#/components/schemas/EditSource'
       responses:
         '202':
           description: Source entry successfully edited
@@ -499,6 +505,12 @@ components:
           type: string
           description: account id if using harvest otherwise use nil
           example: '1909382'
+    EditSource:
+      type: object
+      description: source information for editing existing source - cannot change name of source
+      properties:
+        source:
+          $ref: '#/components/schemas/Source'
     Source:
       type: object
       description: source object with source information
@@ -564,3 +576,21 @@ components:
       schema:
         type: string
         example: "4"
+    StartDate:
+      in: query
+      name: startDate
+      description: start of date range you are requesting resources for (if you use startDate you must also pass in endDate)
+      schema:
+        type: string
+        description: Datetime formatted to string according to ISO8601
+      required: false
+      example: "2021-05-08T12%3A56%3A17%2B00%3A00"
+    EndDate:
+      in: query
+      name: endDate
+      description: end of date range you are requesting resources for (if you use endDate you must also pass in startDate)
+      schema:
+        type: string
+        description: Datetime formatted to string according to ISO8601
+      required: false
+      example: "2021-07-08T14%3A50%3A38%2B00%3A00"
