@@ -114,14 +114,14 @@ class UpdateTogglJob < ApplicationJob
     time_entries_payload = @payload["data"]["time_entries"]
     return nil unless time_entries_payload
     time_entries_payload.each do |toggl_entry|
-      existing_time_entry = TimeEntry.find_by(original_id: toggl_entry["id"])
+      existing_time_entry = TimeEntry.find_by(original_id: toggl_entry["id"].to_s)
       if existing_time_entry
         existing_time_entry["duration_seconds"] = toggl_entry["duration"]
       else
-        task = Task.find_by(original_id: toggl_entry["tid"]) # || create_placeholder_task(toggl_entry)
+        task = Task.find_by(original_id: toggl_entry["tid"].to_s) # || create_placeholder_task(toggl_entry)
         if task
           task_id = task.id
-        elsif task = Task.find_by(original_id: "Generic Task - Workspace - #{toggl_entry["wid"]}")
+        elsif task = Task.find_by(original_id: "Generic Task - Workspace - #{toggl_entry["wid"].to_s}")
           task_id = task.id
         else
           new_task = create_placeholder_task(toggl_entry)
@@ -138,11 +138,12 @@ class UpdateTogglJob < ApplicationJob
   end
 
   def create_placeholder_task(toggl_entry)
-    original_project = Project.find_by(original_id: toggl_entry["pid"])
+    original_project = nil
+    original_project = Project.find_by(original_id: toggl_entry["pid"]) if toggle_entry["pid"]
     if original_project
       project_id = original_project.id
     else
-      new_project = create_placeholder_project(toggl_entry)
+      new_project = create_placeholder_project(toggl_entry["wid"])
       project_id = new_project.id
     end
     # project_id = !!original_project ? original_project.id : create_placeholder_project(toggl_entry["wid"]).id
@@ -151,8 +152,8 @@ class UpdateTogglJob < ApplicationJob
     return new_task
   end
 
-  def create_placeholder_project(toggl_entry)
-    id = Workspace.find_by(original_id: toggl_entry["wid"]).id
+  def create_placeholder_project(workspace_id)
+    id = Workspace.find_by(original_id: workspace_id.to_s).id
     new_project = Project.create!(workspace_id: id, original_id: "Generic Project - Workspace - #{toggl_entry["wid"]}")
     return new_project
   end
