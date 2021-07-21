@@ -51,13 +51,13 @@ class UpdateHarvestPollingJob < ApplicationJob
   # Puts mongodb data into tasks table from Harvest
   def normalize_tasks_harvest(tasks)
     tasks.each do |task|
-      project_original_id = task["payload"]["project"]["id"]
+      project_original_id = task["payload"]["project"]["id"].to_s
       project = Project.find_by(workspace_id: harvest_workspace.id, original_id: project_original_id)
-      found_task = Task.find_by(project_id: project.id, original_id: task["payload"]["task"]["id"])
+      found_task = Task.find_by(project_id: project.id, original_id: task["payload"]["task"]["id"].to_s)
       if found_task
         found_task.name = task["payload"]["task"]["name"]
       else
-        found_task = Task.create!(project_id: project.id, name: task["payload"]["task"]["name"], original_id: task["payload"]["task"]["id"])
+        found_task = Task.create!(project_id: project.id, name: task["payload"]["task"]["name"], original_id: task["payload"]["task"]["id"].to_s)
       end
     end
   end
@@ -67,12 +67,12 @@ class UpdateHarvestPollingJob < ApplicationJob
 
   def normalize_time_entries_harvest(time_entries)
     time_entries.each do |time_entry|
-      project_original_id = time_entry["payload"]["project"]["id"]
-      task_original_id = time_entry["payload"]["task"]["id"]
+      project_original_id = time_entry["payload"]["project"]["id"].to_s
+      task_original_id = time_entry["payload"]["task"]["id"].to_s
       project = Project.find_by(original_id: project_original_id, workspace_id: harvest_workspace.id)
       task = Task.find_by(original_id: task_original_id, project_id: project.id)
     
-      original_id = time_entry["payload"]["id"]
+      original_id = time_entry["payload"]["id"].to_s
       
       found_time_entry = TimeEntry.find_by(task_id: task.id, original_id: original_id)
       duration_seconds = (time_entry["payload"]["hours"] * 60 * 60).to_i
