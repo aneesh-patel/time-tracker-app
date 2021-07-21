@@ -106,6 +106,10 @@ class UpdateTogglJob < ApplicationJob
     end
   end
 
+  def toggl_entry_project_lookup(toggl_entry)
+    toggl_entry["pid"] || toggl_entry["id"]
+  end
+
   def update_toggl_time_entries
     time_entries_payload = @payload["data"]["time_entries"]
     return nil unless time_entries_payload
@@ -114,8 +118,15 @@ class UpdateTogglJob < ApplicationJob
       if existing_time_entry
         existing_time_entry["duration_seconds"] = toggl_entry["duration"]
       else
-        task = Task.find_by(original_id: toggl_entry["tid"]) || create_placeholder_task(toggl_entry)
-        task_id = task.id
+        task = Task.find_by(original_id: toggl_entry["tid"]) # || create_placeholder_task(toggl_entry)
+        if task
+          task_id = task.id
+        elsif task = Task.find_by(original_id: "Task - TimeEntry - #{toggl_entry["id"]}")
+          task_id = task.id
+        else
+          new_task = create_placeholder_task(toggl_entry)
+          task_id = new_task.id
+        end
         TimeEntry.create!(
           original_id: toggl_entry["id"],
           duration_seconds: toggl_entry["duration"],
@@ -128,12 +139,21 @@ class UpdateTogglJob < ApplicationJob
 
   def create_placeholder_task(toggl_entry)
     original_project = Project.find_by(original_id: toggl_entry["pid"])
-    project_id = !!original_project ? original_project.id : create_placeholder_project(toggl_entry["wid"]).id
-    Task.create!(project_id: project_id, original_id: (rand() * 100000000).round)
+    if original_project
+      project_id = original_project.id
+    else
+      new_project = create_placeholder_project(toggl_entry)
+      project_id = new_project.id
+    end
+    # project_id = !!original_project ? original_project.id : create_placeholder_project(toggl_entry["wid"]).id
+    puts "Project ID HERE IS =================== #{project_id}"
+    new_task = Task.create!(project_id: project_id, original_id: "Task - TimeEntry - #{toggl_entry["id"]}")
+    return new_task
   end
 
-  def create_placeholder_project(workspace_id)
-    id = Workspace.find_by(original_id: workspace_id).id
-    Project.create!(workspace_id: id, original_id: (rand() * 100000000).round)
+  def create_placeholder_project(toggl_entry)
+    id = Workspace.find_by(original_id: toggl_entry["wid"]).id
+    new_project = Project.create!(workspace_id: id, original_id: "Project - TimeEntry - #{toggl_entry["id"]}")
+    return new_project
   end
 end
