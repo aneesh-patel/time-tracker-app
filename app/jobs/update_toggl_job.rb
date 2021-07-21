@@ -113,6 +113,7 @@ class UpdateTogglJob < ApplicationJob
   def update_toggl_time_entries
     time_entries_payload = @payload["data"]["time_entries"]
     return nil unless time_entries_payload
+    puts("Made it")
     time_entries_payload.each do |toggl_entry|
       existing_time_entry = TimeEntry.find_by(original_id: toggl_entry["id"].to_s)
       if existing_time_entry

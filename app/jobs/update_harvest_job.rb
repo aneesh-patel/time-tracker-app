@@ -77,9 +77,6 @@ class UpdateHarvestJob < ApplicationJob
       
       found_time_entry = TimeEntry.find_by(original_id: original_id)
       duration_seconds = (time_entry["payload"]["hours"] * 60 * 60).to_i
-      if found_time_entry.id == 36
-        puts("duration in seconds is BOIIIIIIIII #{duration_seconds}")
-      end
       started_at = time_entry["payload"]["spent_date"].to_datetime
       if found_time_entry
         found_time_entry.update(duration_seconds: duration_seconds)
