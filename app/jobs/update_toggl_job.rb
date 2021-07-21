@@ -140,7 +140,7 @@ class UpdateTogglJob < ApplicationJob
 
   def create_placeholder_task(toggl_entry)
     original_project = nil
-    original_project = Project.find_by(original_id: toggl_entry["pid"]) if toggle_entry["pid"]
+    original_project = Project.find_by(original_id: toggl_entry["pid"]) if toggl_entry["pid"]
     if original_project
       project_id = original_project.id
     else
@@ -149,7 +149,7 @@ class UpdateTogglJob < ApplicationJob
     end
     # project_id = !!original_project ? original_project.id : create_placeholder_project(toggl_entry["wid"]).id
     puts "Project ID HERE IS =================== #{project_id}"
-    new_task = Task.create!(project_id: project_id, original_id: "Generic Task - Workspace - #{toggle_entry["wid"]}")
+    new_task = Task.create!(project_id: project_id, original_id: "Generic Task - Workspace - #{toggl_entry["wid"]}")
     return new_task
   end
 
