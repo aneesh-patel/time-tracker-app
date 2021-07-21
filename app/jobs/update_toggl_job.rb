@@ -155,7 +155,7 @@ class UpdateTogglJob < ApplicationJob
 
   def create_placeholder_project(workspace_id)
     id = Workspace.find_by(original_id: workspace_id.to_s).id
-    new_project = Project.create!(workspace_id: id, original_id: "Generic Project - Workspace - #{toggl_entry["wid"]}")
+    new_project = Project.create!(workspace_id: id, original_id: "Generic Project - Workspace - #{workspace_id}")
     return new_project
   end
 end
