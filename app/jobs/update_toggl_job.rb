@@ -121,7 +121,7 @@ class UpdateTogglJob < ApplicationJob
         task = Task.find_by(original_id: toggl_entry["tid"]) # || create_placeholder_task(toggl_entry)
         if task
           task_id = task.id
-        elsif task = Task.find_by(original_id: "Task - TimeEntry - #{toggl_entry["id"]}")
+        elsif task = Task.find_by(original_id: "Generic Task - Workspace - #{toggl_entry["wid"]}")
           task_id = task.id
         else
           new_task = create_placeholder_task(toggl_entry)
@@ -147,13 +147,13 @@ class UpdateTogglJob < ApplicationJob
     end
     # project_id = !!original_project ? original_project.id : create_placeholder_project(toggl_entry["wid"]).id
     puts "Project ID HERE IS =================== #{project_id}"
-    new_task = Task.create!(project_id: project_id, original_id: "Task - TimeEntry - #{toggl_entry["id"]}")
+    new_task = Task.create!(project_id: project_id, original_id: "Generic Task - Workspace - #{toggle_entry["wid"]}")
     return new_task
   end
 
   def create_placeholder_project(toggl_entry)
     id = Workspace.find_by(original_id: toggl_entry["wid"]).id
-    new_project = Project.create!(workspace_id: id, original_id: "Project - TimeEntry - #{toggl_entry["id"]}")
+    new_project = Project.create!(workspace_id: id, original_id: "Generic Project - Workspace - #{toggl_entry["wid"]}")
     return new_project
   end
 end
