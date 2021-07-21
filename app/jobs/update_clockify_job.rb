@@ -184,8 +184,15 @@ class UpdateClockifyJob < ApplicationJob
       workspace.each do |time_entry|
         existing_time_entry = TimeEntry.find_by(original_id: time_entry["id"])
         if !existing_time_entry
-          task = Task.find_by(original_id: time_entry["taskId"]) || create_placeholder_task(time_entry)
-          task_id = task.id
+          task = Task.find_by(original_id: time_entry["taskId"]) #|| create_placeholder_task(time_entry)
+          if (task)
+            task_id = task.id
+          elsif (task = Task.find_by(original_id: "Generic Task - Project #{time_entry["projectId"]}"))
+            task_id = task.id
+          else
+            new_task = create_placeholder_task(time_entry)
+            task_id = new_task.id
+          end
           start_time = DateTime.parse(time_entry["timeInterval"]["start"]).to_time
           end_time = DateTime.parse(time_entry["timeInterval"]["end"]).to_time
           duration = (end_time - start_time).to_i
@@ -202,8 +209,10 @@ class UpdateClockifyJob < ApplicationJob
   def create_placeholder_task(time_entry)
     original_project_id = time_entry["projectId"]
     project_id = Project.find_by(original_id: original_project_id).id
-    Task.create!(
+    new_task = Task.create!(
       project_id: project_id,
+      original_id: "Generic Task - Project #{original_project_id}" 
     )
+    return new_task
   end
 end
