@@ -108,21 +108,20 @@ class UpdateTogglJob < ApplicationJob
 
   def update_toggl_time_entries
     time_entries_payload = @payload["data"]["time_entries"]
-    if time_entries_payload
-      time_entries_payload.each do |toggl_entry|
-        existing_time_entry = TimeEntry.find_by(original_id: toggl_entry["id"])
-        if existing_time_entry
-          existing_time_entry["duration_seconds"] = toggl_entry["duration"]
-        else
-          task = Task.find_by(original_id: toggl_entry["tid"]) || create_placeholder_task(toggl_entry)
-          task_id = task.id
-          TimeEntry.create!(
-            original_id: toggl_entry["id"],
-            duration_seconds: toggl_entry["duration"],
-            started_at: toggl_entry["start"],
-            task_id: task_id,
-          )
-        end
+    return nil unless time_entries_payload
+    time_entries_payload.each do |toggl_entry|
+      existing_time_entry = TimeEntry.find_by(original_id: toggl_entry["id"])
+      if existing_time_entry
+        existing_time_entry["duration_seconds"] = toggl_entry["duration"]
+      else
+        task = Task.find_by(original_id: toggl_entry["tid"]) || create_placeholder_task(toggl_entry)
+        task_id = task.id
+        TimeEntry.create!(
+          original_id: toggl_entry["id"],
+          duration_seconds: toggl_entry["duration"],
+          started_at: toggl_entry["start"],
+          task_id: task_id,
+        )
       end
     end
   end
@@ -130,11 +129,11 @@ class UpdateTogglJob < ApplicationJob
   def create_placeholder_task(toggl_entry)
     original_project = Project.find_by(original_id: toggl_entry["pid"])
     project_id = !!original_project ? original_project.id : create_placeholder_project(toggl_entry["wid"]).id
-    Task.create!(project_id: project_id)
+    Task.create!(project_id: project_id, original_id: (rand() * 100000000).round)
   end
 
   def create_placeholder_project(workspace_id)
     id = Workspace.find_by(original_id: workspace_id).id
-    Project.create!(workspace_id: id)
+    Project.create!(workspace_id: id, original_id: (rand() * 100000000).round)
   end
 end
