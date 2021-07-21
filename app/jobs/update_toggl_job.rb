@@ -42,7 +42,7 @@ class UpdateTogglJob < ApplicationJob
 
     Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
       response = http.request(request)
-      data = JSON.parse(response.body)
+      data = response.body
       return data
     end
   end

@@ -1,2 +1,2 @@
-GET http://localhost:3000/projects?startDate=2021-06-18T16%3A03%3A08Z&endDate=2021-07-18T16%3A02%3A41Z
+GET http://localhost:3000/refresh
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo1fQ.YdUeKzPfpTFVgbh0nu3t0s4Z-zIHA6ocRV1sww29flg
