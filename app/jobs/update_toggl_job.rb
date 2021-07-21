@@ -42,6 +42,7 @@ class UpdateTogglJob < ApplicationJob
 
     Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
       response = http.request(request)
+      
       data = JSON.parse(response.body)
       return data
     end
@@ -107,20 +108,21 @@ class UpdateTogglJob < ApplicationJob
 
   def update_toggl_time_entries
     time_entries_payload = @payload["data"]["time_entries"]
-
-    time_entries_payload.each do |toggl_entry|
-      existing_time_entry = TimeEntry.find_by(original_id: toggl_entry["id"])
-      if existing_time_entry
-        existing_time_entry["duration_seconds"] = toggl_entry["duration"]
-      else
-        task = Task.find_by(original_id: toggl_entry["tid"]) || create_placeholder_task(toggl_entry)
-        task_id = task.id
-        TimeEntry.create!(
-          original_id: toggl_entry["id"],
-          duration_seconds: toggl_entry["duration"],
-          started_at: toggl_entry["start"],
-          task_id: task_id,
-        )
+    if time_entries_payload
+      time_entries_payload.each do |toggl_entry|
+        existing_time_entry = TimeEntry.find_by(original_id: toggl_entry["id"])
+        if existing_time_entry
+          existing_time_entry["duration_seconds"] = toggl_entry["duration"]
+        else
+          task = Task.find_by(original_id: toggl_entry["tid"]) || create_placeholder_task(toggl_entry)
+          task_id = task.id
+          TimeEntry.create!(
+            original_id: toggl_entry["id"],
+            duration_seconds: toggl_entry["duration"],
+            started_at: toggl_entry["start"],
+            task_id: task_id,
+          )
+        end
       end
     end
   end

@@ -1,2 +1,2 @@
 GET http://localhost:3000/refresh
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo1fQ.YdUeKzPfpTFVgbh0nu3t0s4Z-zIHA6ocRV1sww29flg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMSJ9.M1vu6qDej7HzuSxcfbE6KAMekNUXB3EWtxwS0pg4UGg
