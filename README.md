@@ -1,24 +1,5 @@
-# README
+# Timehub RESTful API Backend
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is the repository for Timehub's RESTful API backend. The backend was built using Rails, ActiveJob, PostgreSQL, and more.
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+### To learn more about Timehub or to read our Case Study, please visit https://timehub.vercel.app
